@@ -138,20 +138,21 @@ in the keyring at once and switch providers by editing `base_url`/`keyring_user`
 
 ---
 
-## Verifying the key is stored (and not in plaintext)
+## Security & Privacy
 
-The key should be in the secret store and **not** in any file. On Linux with libsecret:
+Alacritty takes several measures to protect your system and data:
 
-```sh
-secret-tool search service alacritty-ai     # shows the stored entry
-grep -ri "sk-" ~/.config/alacritty/          # should find nothing
-```
-
-In a running session, confirm the key is not exposed to your shell or to AI-run commands:
-
-```sh
-echo "$OPENAI_API_KEY"   # empty — Alacritty never puts the key in the child environment
-```
+- **Secret Management:** Your API key is stored only in the OS keyring and is never written
+  to disk or logs.
+- **Command Sanitization:** Proposed commands are sanitized to prevent multi-line injection
+  attacks.
+- **Approval Policy:** `Smart` mode (default) uses heuristics to detect and prompt for
+  destructive commands. You can also explicitly `allow` or `deny` patterns.
+- **Data Privacy:** Requests to the AI include your visible terminal screen and recent
+  scrollback (up to 200 lines by default) to provide context. No data is sent unless you
+  explicitly trigger a prompt with Enter.
+- **Environment Isolation:** Alacritty does not export your API key or other sensitive AI
+  configuration to the shell environment.
 
 ---
 
