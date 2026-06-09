@@ -265,7 +265,14 @@ impl Worker {
             Some(args) => args,
             None => return ToolOutcome::Result("invalid tool arguments".into()),
         };
-        let command = args.command;
+        let mut command = args.command;
+
+        // SECURITY: Sanitize the command by replacing newlines/carriage-returns with spaces.
+        // This prevents an AI from injecting multiple commands where only one is expected,
+        // which could bypass the approval policy or execute code immediately in `TypeOnly` mode.
+        if command.contains(['\n', '\r']) {
+            command = command.replace(['\n', '\r'], " ");
+        }
 
         match self.policy.decide(self.config.ai.execution_mode, &command) {
             Decision::Insert => {
